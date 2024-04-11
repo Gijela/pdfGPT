@@ -13,7 +13,7 @@ const IndexPage: NextPage = () => {
   return (
     <MessagesProvider>
       <Layout>
-        <div className="min-h-screen flex flex-col lg:flex-row">
+        <div className="h-screen flex flex-col lg:flex-row">
           <Toggle chatOnlyView={chatOnlyView} setChatOnlyView={setChatOnlyView} />
           {!chatOnlyView && (
             <div className="flex-1">
@@ -21,7 +21,7 @@ const IndexPage: NextPage = () => {
             </div>
           )}
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 p-[10px]">
+            <div className="flex-1 p-[10px] overflow-auto">
               <MessagesList />
             </div>
             <MessageForm />

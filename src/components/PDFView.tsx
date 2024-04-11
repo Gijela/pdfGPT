@@ -24,7 +24,7 @@ export default function PDFView() {
 
   return (
     <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.js">
-      <div className={'w-full h-[95vh] flex-col text-white !important flex'}>
+      <div className={'w-full h-[90vh] flex-col text-white !important flex'}>
         <div
           className="align-center bg-[#eeeeee] flex p-1"
           style={{
