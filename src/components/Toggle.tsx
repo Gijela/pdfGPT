@@ -6,7 +6,7 @@ function classNames(...classes: any) {
 
 export default function Toggle({ chatOnlyView, setChatOnlyView }: any) {
   return (
-    <div className="sm:hidden flex w-full items-center justify-center sm:mt-0 mt-5 mb-1">
+    <div className="lg:hidden flex w-full items-center justify-center sm:mt-0 mt-5 mb-1">
       <Switch.Group as="div" className="flex">
         <Switch.Label as="span" className="mr-3 text-sm flex justify-center gap-2 items-center">
           <span
