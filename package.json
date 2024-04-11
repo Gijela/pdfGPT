@@ -21,11 +21,14 @@
     "@react-pdf-viewer/default-layout": "3.12.0",
     "@react-pdf-viewer/page-navigation": "3.12.0",
     "@react-pdf-viewer/toolbar": "3.12.0",
+    "date-fns": "2.30.0",
     "next": "^13.0.6",
     "openai": "^3.2.1",
     "pdfjs-dist": "3.4.120",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-uploader": "3.43.0",
+    "uploader": "3.48.3"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.2",

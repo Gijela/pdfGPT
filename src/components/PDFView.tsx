@@ -7,10 +7,7 @@ import type { ToolbarSlot, TransformToolbarSlot } from '@react-pdf-viewer/toolba
 import { toolbarPlugin } from '@react-pdf-viewer/toolbar'
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation'
 
-const test_pdf_url =
-  'https://upcdn.io/W142iXz/raw/uploads/2024/04/07/4khanYBCJj-3%20%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B%EF%BC%9A%20%E5%A6%82%E4%BD%95%E7%94%A8%20Vite%20%E4%BB%8E%E9%9B%B6%E6%90%AD%E5%BB%BA%E5%89%8D%E7%AB%AF%E9%A1%B9%E7%9B%AE%EF%BC%9F.pdf'
-
-export default function PDFView() {
+export default function PDFView({ curPdfUrl }: { curPdfUrl: string }) {
   const toolbarPluginInstance = toolbarPlugin()
   const pageNavigationPluginInstance = pageNavigationPlugin()
   const { renderDefaultToolbar, Toolbar } = toolbarPluginInstance
@@ -34,7 +31,7 @@ export default function PDFView() {
           <Toolbar>{renderDefaultToolbar(transform)}</Toolbar>
         </div>
         <Viewer
-          fileUrl={test_pdf_url as string}
+          fileUrl={curPdfUrl as string}
           plugins={[toolbarPluginInstance, pageNavigationPluginInstance]}
         />
       </div>
