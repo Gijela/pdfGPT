@@ -64,7 +64,7 @@ export default function Header({
                 </Button>
               )}
               <Button variant="primary">
-                <a href="https://chat2hub.com/#/subscribe" target="_blank">
+                <a href="https://chat2hub.com/#/subscribe" target="_blank" rel="noreferrer">
                   获取ApiKey
                 </a>
               </Button>

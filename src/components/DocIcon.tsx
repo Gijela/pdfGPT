@@ -1,12 +1,6 @@
 export default function DocIcon() {
   return (
-    <svg
-      width={17}
-      height={20}
-      viewBox="0 0 17 20"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width={17} height={20} viewBox="0 0 17 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M10 1H2.8A1.8 1.8 0 001 2.8v14.4A1.8 1.8 0 002.8 19h10.8a1.8 1.8 0 001.8-1.8V6.4L10 1z"
         stroke="#000"
@@ -22,5 +16,5 @@ export default function DocIcon() {
         strokeLinejoin="round"
       />
     </svg>
-  );
+  )
 }

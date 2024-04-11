@@ -2,7 +2,7 @@ import { UploadDropzone } from 'react-uploader'
 import { Uploader } from 'uploader'
 
 const uploader = Uploader({
-  apiKey: !!process.env.NEXT_PUBLIC_BYTESCALE_API_KEY
+  apiKey: process.env.NEXT_PUBLIC_BYTESCALE_API_KEY
     ? process.env.NEXT_PUBLIC_BYTESCALE_API_KEY
     : 'no api key found'
 })
