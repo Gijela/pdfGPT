@@ -12,7 +12,7 @@ const Layout = ({
   children,
   title = 'Apideck - Next Starter Kit',
   description = 'A Next.js starter kit with TypeScript, Tailwind, Jest, Prettier, and Eslint',
-  favicon = '/img/logo.png'
+  favicon = '/img/favicon.ico'
 }: Props) => (
   <div className="font-basier-circle">
     <Head>
