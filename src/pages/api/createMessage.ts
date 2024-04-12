@@ -7,7 +7,7 @@ export default async function createMessage(req: NextApiRequest, res: NextApiRes
 
   const body = JSON.stringify({
     messages,
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-turbo-preview',
     stream: false
   })
 
@@ -23,6 +23,6 @@ export default async function createMessage(req: NextApiRequest, res: NextApiRes
     const data = await response.json()
     res.status(200).json({ data })
   } catch (error) {
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: error })
   }
 }

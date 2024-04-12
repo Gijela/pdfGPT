@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IPdfItem } from 'pages/upload/UploadFile'
 import Layout from 'components/Layout'
+import { MessagesProvider } from 'utils/useMessages'
 
 import MessageForm from './MessageForm'
 import MessagesList from './MessageList'
@@ -21,21 +22,23 @@ export default function Document() {
   }, [])
 
   return (
-    <Layout>
-      <div className="h-screen flex flex-col lg:flex-row bg-gray-50">
-        <Toggle chatOnlyView={chatOnlyView} setChatOnlyView={setChatOnlyView} />
-        {!chatOnlyView && (
-          <div className="flex-1">
-            <PDFView curPdfUrl={nowPdfUrl} />
+    <MessagesProvider curPdfUrl={nowPdfUrl}>
+      <Layout>
+        <div className="h-screen flex flex-col lg:flex-row bg-gray-50">
+          <Toggle chatOnlyView={chatOnlyView} setChatOnlyView={setChatOnlyView} />
+          {!chatOnlyView && (
+            <div className="flex-1">
+              <PDFView curPdfUrl={nowPdfUrl} />
+            </div>
+          )}
+          <div className="flex-1 flex flex-col">
+            <div className="flex-1 p-[10px] overflow-auto">
+              <MessagesList />
+            </div>
+            <MessageForm />
           </div>
-        )}
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 p-[10px] overflow-auto">
-            <MessagesList />
-          </div>
-          <MessageForm />
         </div>
-      </div>
-    </Layout>
+      </Layout>
+    </MessagesProvider>
   )
 }
