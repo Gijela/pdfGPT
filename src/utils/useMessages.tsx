@@ -1,7 +1,6 @@
 import { useToast } from '@apideck/components'
 import { ChatCompletionRequestMessage } from 'openai'
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
-import { sendMessage } from './sendMessage'
 
 interface ContextProps {
   messages: ChatCompletionRequestMessage[]
@@ -51,6 +50,11 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
 
   // 提问 openAI
   const addMessage = async (content: string) => {
+    const ApiKey = localStorage.getItem('chat2hub_pdf_ApiKey')
+    if (!ApiKey) {
+      addToast({ title: '未填写 ApiKey ！', type: 'error' })
+      return
+    }
     setIsLoadingAnswer(true)
     try {
       // 添加问题到 Messages
@@ -59,13 +63,18 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
       setMessages(newMessages)
 
       // 发起请求
-      const { data } = await sendMessage(newMessages)
+      const response = await fetch('/api/createMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, apiKey: ApiKey })
+      })
+      const { data } = await response.json()
 
       // 添加回复到 Messages
       const reply = data.choices[0].message
       setMessages([...newMessages, reply])
     } catch (error) {
-      addToast({ title: '请确保 ApiKey 已正确填入', type: 'error' })
+      addToast({ title: '发起对话请求出错！', type: 'error' })
     } finally {
       setIsLoadingAnswer(false)
     }
