@@ -14,7 +14,7 @@ const options = {
   editor: { images: { crop: false } },
   styles: {
     colors: {
-      primary: '#000', // Primary buttons & links
+      primary: '#9333EA', // Primary buttons & links
       error: '#d23f4d' // Error messages
     }
   }
