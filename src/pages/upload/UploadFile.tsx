@@ -1,3 +1,4 @@
+import { useRouter } from 'next/navigation'
 import { UploadDropzone } from 'react-uploader'
 import { Uploader } from 'uploader'
 
@@ -30,7 +31,9 @@ export interface IPdfItem {
   createAt: number
 }
 
-export default function UploadFile({ updatePdfUrl }: { updatePdfUrl: (url: string) => void }) {
+export default function UploadFile() {
+  const router = useRouter()
+
   return (
     <UploadDropzone
       uploader={uploader}
@@ -38,13 +41,15 @@ export default function UploadFile({ updatePdfUrl }: { updatePdfUrl: (url: strin
       onUpdate={(file) => {
         if (file.length !== 0) {
           const { fileUrl, file: originalFileObj, lastModified: createAt } = file[0].originalFile
-          updatePdfUrl(fileUrl)
 
           // 保存到浏览器本地
           const localPdfList = localStorage.getItem('pdfList')
           const pdfList: IPdfItem[] = localPdfList ? JSON.parse(localPdfList) : []
           pdfList.unshift({ fileUrl, fileName: originalFileObj.name, createAt })
           localStorage.setItem('pdfList', JSON.stringify(pdfList))
+
+          // 页面跳转
+          router.push(`/document/${createAt}`)
         }
       }}
       width="470px"

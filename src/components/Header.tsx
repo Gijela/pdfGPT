@@ -3,13 +3,7 @@ import Link from 'next/link'
 import { useModal, Button, TextInput } from '@apideck/components'
 import { useEffect, useState } from 'react'
 
-export default function Header({
-  curPdfUrl,
-  clearCurPdfUrl
-}: {
-  curPdfUrl: string
-  clearCurPdfUrl: () => void
-}) {
+export default function Header() {
   const { addModal, removeModal } = useModal()
   const [ApiKey, setApiKey] = useState<string>('')
 
@@ -34,7 +28,6 @@ export default function Header({
           name="ApiKey input"
           value={localApiKey}
           onChange={handleChange}
-          placeholder="请输入您的 ApiKey"
           className="my-4"
           autoFocus
         />
@@ -55,14 +48,17 @@ export default function Header({
           <nav className="flex justify-between">
             <Link href={'/'} className="flex items-center">
               <Image src="/img/favicon.ico" width={30} height={30} alt="logo"></Image>
-              <span className="hidden sm:block text-2xl font-medium ml-2">Chat2hub 的 PDF AI</span>
+              <span className="hidden sm:block text-2xl font-medium ml-2 hover:text-indigo-700">
+                Chat2hub 的 PDF AI
+              </span>
             </Link>
             <div className="flex items-center gap-5">
-              {curPdfUrl && (
-                <Button variant="danger" onClick={clearCurPdfUrl}>
-                  PDF 列表
-                </Button>
-              )}
+              <Link href={'/upload'}>
+                <Button variant="danger">上传</Button>
+              </Link>
+              <Link href={'/pdfs'}>
+                <Button variant="danger">PDFs 列表</Button>
+              </Link>
               <Button variant="primary">
                 <a href="https://chat2hub.com/#/subscribe" target="_blank" rel="noreferrer">
                   获取ApiKey

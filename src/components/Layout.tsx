@@ -11,7 +11,7 @@ type Props = {
 const Layout = ({
   children,
   title = 'PDF - Chat2hub.com',
-  description = 'A Next.js starter kit with TypeScript, Tailwind, Jest, Prettier, and Eslint',
+  description = '与你的 PDF 聊天',
   favicon = '/img/favicon.ico'
 }: Props) => (
   <div className="font-basier-circle">

@@ -20,7 +20,6 @@ const MessageForm = () => {
         </label>
         <TextArea
           name="content"
-          placeholder="请确保已填入ApiKey，输入您的问题..."
           rows={3}
           value={content}
           autoFocus
