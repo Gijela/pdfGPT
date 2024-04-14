@@ -23,7 +23,9 @@
     "@react-pdf-viewer/toolbar": "3.12.0",
     "date-fns": "2.30.0",
     "framer-motion": "11.0.14",
+    "katex": "0.16.8",
     "lucide-react": "^0.367.0",
+    "mermaid": "10.6.1",
     "next": "^13.0.6",
     "next-themes": "0.2.1",
     "openai": "^3.2.1",
@@ -32,9 +34,17 @@
     "react-dom": "^18.2.0",
     "react-fast-marquee": "1.6.4",
     "react-icons": "5.0.1",
+    "react-markdown": "8.0.7",
     "react-rough-notation": "1.0.5",
     "react-uploader": "3.43.0",
-    "uploader": "3.48.3"
+    "rehype-highlight": "6.0.0",
+    "rehype-katex": "6.0.3",
+    "remark-breaks": "3.0.2",
+    "remark-gfm": "3.0.1",
+    "remark-math": "5.1.1",
+    "sass": "^1.75.0",
+    "uploader": "3.48.3",
+    "use-debounce": "9.0.4"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.2",

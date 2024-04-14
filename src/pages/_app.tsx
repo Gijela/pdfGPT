@@ -1,5 +1,8 @@
 import 'styles/globals.css'
 import 'styles/tailwind.css'
+import 'styles/markdown.scss'
+import 'styles/highlight.scss'
+import 'styles/custom.scss'
 
 import { ModalProvider, ToastProvider } from '@apideck/components'
 
