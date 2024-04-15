@@ -54,3 +54,10 @@ export default function PDFView() {
 }
 
 ```
+
+
+## EventSource
+
+参考：
+[1. nextJS 实现 SSE](https://zhuanlan.zhihu.com/p/617792931)
+[2. nextJS api路由中res.write()没有逐个将SSE流数据发送到客户端，而是等待res.end()一次性发送的原因(nextJs server compress everything by default)](https://stackoverflow.com/questions/74408942/how-to-forward-server-sent-events-in-nextjs-api)

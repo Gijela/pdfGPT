@@ -32,7 +32,7 @@ export default function Document() {
             </div>
           )}
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 p-[10px] overflow-auto">
+            <div className="flex-1 mx-3 overflow-auto">
               <MessagesList />
             </div>
             <MessageForm />

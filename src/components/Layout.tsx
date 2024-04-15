@@ -12,7 +12,7 @@ const Layout = ({
   children,
   title = 'PDF - Chat2hub.com',
   description = '与你的 PDF 聊天',
-  favicon = '/img/favicon.ico'
+  favicon = '/img/logo.png'
 }: Props) => (
   <div className="font-basier-circle">
     <Head>

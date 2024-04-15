@@ -5,7 +5,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from 'react
 interface ContextProps {
   messages: ChatCompletionRequestMessage[]
   addMessage: (content: string) => Promise<void>
-  isLoadingAnswer: boolean
+  connectStatus: number
 }
 
 const ChatsContext = createContext<Partial<ContextProps>>({})
@@ -15,10 +15,16 @@ interface IMessagesProvider {
   children: ReactNode
 }
 
+export enum SSE_Status_Map {
+  CONNECTING = 0,
+  OPEN = 1,
+  CLOSED = 2
+}
+
 export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
   const { addToast } = useToast()
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
-  const [isLoadingAnswer, setIsLoadingAnswer] = useState(false)
+  const [connectStatus, setConnectStatus] = useState<number>(-1) // SSE_Status_Map
 
   // 初始化
   useEffect(() => {
@@ -55,33 +61,40 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
       addToast({ title: '未填写 ApiKey ！', type: 'error' })
       return
     }
-    setIsLoadingAnswer(true)
+
     try {
       // 添加问题到 Messages
       const newMessage: ChatCompletionRequestMessage = { role: 'user', content }
       const newMessages = [...messages, newMessage]
       setMessages(newMessages)
 
-      // 发起请求
-      const response = await fetch('/api/createMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, apiKey: ApiKey })
-      })
-      const { data } = await response.json()
+      // 发起请求 & 返回流式数据
+      const eventSource = new EventSource(
+        `/api/createMessage?ApiKey=${ApiKey}&messages=${JSON.stringify(newMessages)}`
+      )
+      setConnectStatus(eventSource.readyState) // connecting status
 
-      // 添加回复到 Messages
-      const reply = data.choices[0].message
-      setMessages([...newMessages, reply])
+      eventSource.onopen = function () {
+        setConnectStatus(eventSource.readyState) // open status
+      }
+      eventSource.onmessage = function (event) {
+        if (event.data === '[DONE]') return
+        const eventMessage = JSON.parse(event.data)
+        const streamMessage: ChatCompletionRequestMessage = eventMessage.choices[0]?.message
+        // 每获取一个streamMessage(其content是完整消息)，都和 newMessages 组成新的数组，触发重渲染。
+        setMessages([...newMessages, streamMessage])
+      }
+      eventSource.onerror = function () {
+        eventSource.close()
+        setConnectStatus(eventSource.readyState) // closed status
+      }
     } catch (error) {
       addToast({ title: '发起对话请求出错！', type: 'error' })
-    } finally {
-      setIsLoadingAnswer(false)
     }
   }
 
   return (
-    <ChatsContext.Provider value={{ messages, addMessage, isLoadingAnswer }}>
+    <ChatsContext.Provider value={{ connectStatus, messages, addMessage }}>
       {children}
     </ChatsContext.Provider>
   )

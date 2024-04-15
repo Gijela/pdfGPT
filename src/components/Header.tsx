@@ -47,7 +47,7 @@ export default function Header() {
         <div className="h-16 p-4">
           <nav className="flex justify-between">
             <Link href={'/'} className="flex items-center">
-              <Image src="/img/favicon.ico" width={30} height={30} alt="logo"></Image>
+              <Image src="/img/logo.png" width={30} height={30} alt="logo"></Image>
               <span className="hidden sm:block text-2xl font-medium ml-2 hover:text-purple-600">
                 Chat2hub 的 PDF AI
               </span>
