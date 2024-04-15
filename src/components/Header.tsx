@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { useModal, Button, TextInput } from '@apideck/components'
+import { useModal, Button, TextInput, Dropdown } from '@apideck/components'
 import { useEffect, useState } from 'react'
 
 export default function Header() {
@@ -41,6 +41,22 @@ export default function Header() {
     setApiKey(Api_Key)
   }, [])
 
+  const DropdownOptions = [
+    { label: '上传', href: '/upload' },
+    {
+      label: 'PDFs 列表',
+      href: '/pdfs'
+    },
+    {
+      label: '获取ApiKey',
+      href: 'https://chat2hub.com/#/subscribe'
+    },
+    {
+      label: '填写Api Key',
+      onClick: () => addModal(<ModalContent />)
+    }
+  ]
+
   return (
     <>
       <header className="bg-white w-full border-b border-b-slate-200 shadow-sm">
@@ -51,22 +67,31 @@ export default function Header() {
               <span className="hidden sm:block text-2xl font-medium ml-2 hover:text-purple-600">
                 Chat2hub 的 PDF AI
               </span>
+              <span className="sm:hidden block text-2xl font-medium ml-2 hover:text-purple-600">
+                PDF AI
+              </span>
             </Link>
-            <div className="flex items-center gap-5">
+            <div className="hidden sm:flex items-center gap-5">
               <Link href={'/upload'}>
                 <Button variant="danger">上传</Button>
               </Link>
               <Link href={'/pdfs'}>
                 <Button variant="danger">PDFs 列表</Button>
               </Link>
-              <Button variant="primary">
-                <a href="https://chat2hub.com/#/subscribe" target="_blank" rel="noreferrer">
-                  获取ApiKey
-                </a>
-              </Button>
+              <Link href={'https://chat2hub.com/#/subscribe'} target="_blank">
+                <Button variant="primary">获取ApiKey</Button>
+              </Link>
               <Button variant="primary" onClick={() => addModal(<ModalContent />)}>
                 填写Api Key
               </Button>
+            </div>
+            <div className="sm:hidden block">
+              <Dropdown
+                buttonLabel={'更多'}
+                options={DropdownOptions}
+                align="right"
+                minWidth={110}
+              />
             </div>
           </nav>
         </div>
