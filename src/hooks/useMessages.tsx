@@ -16,10 +16,13 @@ interface IMessagesProvider {
 }
 
 export enum SSE_Status_Map {
+  DEFAULT_STATUS = -1,
   CONNECTING = 0,
   OPEN = 1,
   CLOSED = 2
 }
+
+const SSE_Max_Connect_Time = 60000 // ms
 
 export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
   const { addToast } = useToast()
@@ -74,20 +77,32 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
       )
       setConnectStatus(eventSource.readyState) // connecting status
 
+      const closeSSEConnect = () => {
+        eventSource.close()
+        setConnectStatus(eventSource.readyState) // closed status
+        clearTimeout(timeoutId)
+        console.log('流连接已断开')
+      }
+
+      // 设置最大超时时间，无响应则断开 SSE 连接
+      let timeoutId = setTimeout(closeSSEConnect, SSE_Max_Connect_Time)
+
       eventSource.onopen = function () {
         setConnectStatus(eventSource.readyState) // open status
+        clearTimeout(timeoutId) // 连接建立，清除超时
       }
       eventSource.onmessage = function (event) {
+        clearTimeout(timeoutId) // 接收到消息，清除超时
         if (event.data === '[DONE]') return
         const eventMessage = JSON.parse(event.data)
         const streamMessage: ChatCompletionRequestMessage = eventMessage.choices[0]?.message
         // 每获取一个streamMessage(其content是完整消息)，都和 newMessages 组成新的数组，触发重渲染。
         setMessages([...newMessages, streamMessage])
+
+        // 重新设置超时
+        timeoutId = setTimeout(closeSSEConnect, SSE_Max_Connect_Time)
       }
-      eventSource.onerror = function () {
-        eventSource.close()
-        setConnectStatus(eventSource.readyState) // closed status
-      }
+      eventSource.onerror = closeSSEConnect
     } catch (error) {
       addToast({ title: '发起对话请求出错！', type: 'error' })
     }

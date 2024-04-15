@@ -1,4 +1,4 @@
-import { useMessages, SSE_Status_Map } from 'utils/useMessages'
+import { useMessages, SSE_Status_Map } from 'hooks/useMessages'
 import { Markdown } from 'pages/test/markdown'
 
 const MessagesList = () => {
@@ -13,7 +13,7 @@ const MessagesList = () => {
           <div
             id={`message-${i}`}
             className={`flex mb-3 fade-up justify-start ${i === 1 ? 'max-w-md' : ''}`}
-            key={message.content}
+            key={(message.content || '') + new Date().getTime()}
           >
             <img
               src={isUser ? '/img/logo.png' : '/img/gpt.png'}

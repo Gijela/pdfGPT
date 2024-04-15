@@ -4,7 +4,7 @@ import { MdCloudUpload } from 'react-icons/md'
 export const FEATURES_ZH = [
   {
     title: '上传文件',
-    content: '点击「免费开始使用」上传您想要聊天的 PDF 文档',
+    content: '点击「免费开始使用」上传 PDF 文档',
     icon: MdCloudUpload
   },
   {

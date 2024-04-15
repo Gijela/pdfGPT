@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { IPdfItem } from 'pages/upload/UploadFile'
 import Layout from 'components/Layout'
-import { MessagesProvider } from 'utils/useMessages'
+import { MessagesProvider } from 'hooks/useMessages'
 
 import MessageForm from './MessageForm'
 import MessagesList from './MessageList'
