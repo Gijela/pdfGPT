@@ -1,5 +1,5 @@
 import { useMessages, SSE_Status_Map } from 'hooks/useMessages'
-import { Markdown } from 'pages/test/markdown'
+import { Markdown } from './markdownRender/markdown'
 
 const MessagesList = () => {
   const { connectStatus, messages } = useMessages()
