@@ -5,6 +5,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from 'react
 import { prettyObject } from 'utils'
 
 interface ContextProps {
+  replyText: string
   messages: ChatCompletionRequestMessage[]
   addMessage: (content: string) => Promise<void>
   connectStatus: number
@@ -27,6 +28,7 @@ export enum SSE_Status_Map {
 
 export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
   const { addToast } = useToast()
+  const [replyText, setReplyText] = useState<string>('')
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
   const [connectStatus, setConnectStatus] = useState<number>(-1) // SSE_Status_Map
   const [controllerSSE, setControllerSSE] = useState<AbortController>({
@@ -128,9 +130,12 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
         onmessage: function (event) {
           if (event.data === '[DONE]') return
           const eventMessage = JSON.parse(event.data)
-          const streamMessage: ChatCompletionRequestMessage = eventMessage.choices[0]?.message
-          // 每获取一个streamMessage(其content是完整消息)，都和 newMessages 组成新的数组，触发重渲染。
-          setMessages([...newMessages, streamMessage])
+          // streamMessage.content 是完整的消息
+          const streamMessage = eventMessage.choices[0]?.message as {
+            role: string
+            content: string
+          }
+          setReplyText(streamMessage.content)
         },
         onclose() {
           closeSSEConnect()
@@ -145,8 +150,21 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
     }
   }
 
+  useEffect(() => {
+    if (connectStatus === SSE_Status_Map.CLOSED) {
+      const replyTemplate = {
+        role: 'assistant',
+        content: replyText
+      } as ChatCompletionRequestMessage
+      setMessages([...messages, replyTemplate])
+      setReplyText('')
+    }
+  }, [connectStatus])
+
   return (
-    <ChatsContext.Provider value={{ connectStatus, closeSSEConnect, messages, addMessage }}>
+    <ChatsContext.Provider
+      value={{ connectStatus, closeSSEConnect, replyText, messages, addMessage }}
+    >
       {children}
     </ChatsContext.Provider>
   )
