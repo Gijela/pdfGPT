@@ -31,10 +31,9 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
   const [replyText, setReplyText] = useState<string>('')
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
   const [connectStatus, setConnectStatus] = useState<number>(-1) // SSE_Status_Map
-  const [controllerSSE, setControllerSSE] = useState<AbortController>({
-    signal: '',
-    abort: () => {}
-  } as unknown as AbortController)
+  const [controllerSSE, setControllerSSE] = useState<AbortController>(
+    {} as unknown as AbortController
+  )
 
   // 初始化
   useEffect(() => {
@@ -107,7 +106,9 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
             try {
               const resJson = await res.clone().json()
               extraInfo = prettyObject(resJson)
-            } catch {}
+            } catch (error) {
+              console.log('error', error)
+            }
 
             if (res.status === 401) {
               responseTexts.push('检测到无效 ApiKey，请在右上角检查 ApiKey 是否配置正确')
