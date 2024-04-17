@@ -4,7 +4,7 @@ import { useMessages, SSE_Status_Map } from 'hooks/useMessages'
 
 const MessageForm = () => {
   const [content, setContent] = useState('')
-  const { addMessage, connectStatus } = useMessages()
+  const { addMessage, connectStatus, closeSSEConnect } = useMessages()
 
   const handleSubmit = async (e?: any) => {
     e?.preventDefault()
@@ -14,7 +14,7 @@ const MessageForm = () => {
 
   return (
     <form className="w-full relative mx-auto max-w-3xl rounded-t-xl" onSubmit={handleSubmit}>
-      <div className="border-gray-200 h-[130px] rounded-t-xl backdrop-blur border-t border-l border-r border-gray-500/10 dark:border-gray-50/[0.06] bg-white supports-backdrop-blur:bg-white/95 p-3">
+      <div className="relative border-gray-200 h-[130px] rounded-t-xl backdrop-blur border-t border-l border-r border-gray-500/10 dark:border-gray-50/[0.06] bg-white supports-backdrop-blur:bg-white/95 p-5">
         <label htmlFor="content" className="sr-only">
           Your message
         </label>
@@ -60,6 +60,15 @@ const MessageForm = () => {
             )}
           </div>
         </div>
+        {[SSE_Status_Map.CONNECTING, SSE_Status_Map.OPEN].includes(connectStatus) && (
+          <Button
+            className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%]"
+            size="small"
+            onClick={closeSSEConnect}
+          >
+            停止生成
+          </Button>
+        )}
       </div>
     </form>
   )

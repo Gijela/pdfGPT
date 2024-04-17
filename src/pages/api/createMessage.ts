@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { messages, ApiKey } = req.query
+  const { messages, ApiKey } = JSON.parse(req.body)
   const url = `${process.env.BASE_URL}/v1/chat/completions`
 
   try {
@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         Authorization: `Bearer ${ApiKey as string}`
       },
       body: JSON.stringify({
-        messages: JSON.parse(messages as string),
+        messages: messages,
         model: 'gpt-4-32k',
         stream: true
       })

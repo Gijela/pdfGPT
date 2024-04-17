@@ -1,11 +1,14 @@
 import { useToast } from '@apideck/components'
+import { fetchEventSource, EventStreamContentType } from '@fortaine/fetch-event-source'
 import { ChatCompletionRequestMessage } from 'openai'
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
+import { prettyObject } from 'utils'
 
 interface ContextProps {
   messages: ChatCompletionRequestMessage[]
   addMessage: (content: string) => Promise<void>
   connectStatus: number
+  closeSSEConnect: () => void
 }
 
 const ChatsContext = createContext<Partial<ContextProps>>({})
@@ -22,19 +25,21 @@ export enum SSE_Status_Map {
   CLOSED = 2
 }
 
-const SSE_Max_Connect_Time = 60000 // ms
-
 export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
   const { addToast } = useToast()
   const [messages, setMessages] = useState<ChatCompletionRequestMessage[]>([])
   const [connectStatus, setConnectStatus] = useState<number>(-1) // SSE_Status_Map
+  const [controllerSSE, setControllerSSE] = useState<AbortController>({
+    signal: '',
+    abort: () => {}
+  } as unknown as AbortController)
 
   // 初始化
   useEffect(() => {
-    const initializeChat = () => {
+    if (curPdfUrl) {
       const systemMessage: ChatCompletionRequestMessage = {
         role: 'system',
-        content: '你是 ChatGPT 4.0，一个由 OpenAI 训练的大型语言模型。'
+        content: `你是 ChatGPT 4.0，一个由 OpenAI 训练的大型语言模型。下面我会给你提供一个PDF文件链接，后续所有问题请优先基于本文件进行回答，文件链接为：${curPdfUrl}。`
       }
       const welcomeMessage: ChatCompletionRequestMessage = {
         role: 'assistant',
@@ -42,20 +47,13 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
       }
       setMessages([systemMessage, welcomeMessage])
     }
-
-    if (!messages?.length) {
-      initializeChat()
-    }
-  }, [messages?.length, setMessages])
-
-  // pdf 链接存在时，将其添加到系统 prompt 中
-  useEffect(() => {
-    if (curPdfUrl) {
-      const newSystemMsg: ChatCompletionRequestMessage = messages[0]
-      newSystemMsg.content += `后续问题请基于本文件进行回答, 文件链接为：${curPdfUrl}`
-      setMessages([newSystemMsg, ...messages.slice(1)])
-    }
   }, [curPdfUrl])
+
+  const closeSSEConnect = () => {
+    controllerSSE.abort()
+    setConnectStatus(SSE_Status_Map.CLOSED)
+    console.log('流连接已断开')
+  }
 
   // 提问 openAI
   const addMessage = async (content: string) => {
@@ -72,44 +70,83 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
       setMessages(newMessages)
 
       // 发起请求 & 返回流式数据
-      const eventSource = new EventSource(
-        `/api/createMessage?ApiKey=${ApiKey}&messages=${JSON.stringify(newMessages)}`
-      )
-      setConnectStatus(eventSource.readyState) // connecting status
+      const newControllerSSE = new AbortController()
+      setControllerSSE(newControllerSSE)
 
-      const closeSSEConnect = () => {
-        eventSource.close()
-        setConnectStatus(eventSource.readyState) // closed status
-        clearTimeout(timeoutId)
-        console.log('流连接已断开')
-      }
+      setConnectStatus(SSE_Status_Map.CONNECTING)
+      fetchEventSource('/api/createMessage', {
+        method: 'POST',
+        body: JSON.stringify({ messages: newMessages, ApiKey }),
+        signal: newControllerSSE.signal,
+        openWhenHidden: true,
+        onopen: async function (res) {
+          setConnectStatus(SSE_Status_Map.OPEN)
 
-      // 设置最大超时时间，无响应则断开 SSE 连接
-      let timeoutId = setTimeout(closeSSEConnect, SSE_Max_Connect_Time)
+          // 异常处理
+          const contentType = res.headers.get('content-type')
+          if (contentType?.startsWith('text/plain')) {
+            const responseText = await res.clone().text()
+            const mockResponse = {
+              role: 'assistant',
+              content: responseText
+            } as ChatCompletionRequestMessage
 
-      eventSource.onopen = function () {
-        setConnectStatus(eventSource.readyState) // open status
-        clearTimeout(timeoutId) // 连接建立，清除超时
-      }
-      eventSource.onmessage = function (event) {
-        clearTimeout(timeoutId) // 接收到消息，清除超时
-        if (event.data === '[DONE]') return
-        const eventMessage = JSON.parse(event.data)
-        const streamMessage: ChatCompletionRequestMessage = eventMessage.choices[0]?.message
-        // 每获取一个streamMessage(其content是完整消息)，都和 newMessages 组成新的数组，触发重渲染。
-        setMessages([...newMessages, streamMessage])
+            setMessages([...newMessages, mockResponse])
+            return
+          }
 
-        // 重新设置超时
-        timeoutId = setTimeout(closeSSEConnect, SSE_Max_Connect_Time)
-      }
-      eventSource.onerror = closeSSEConnect
+          if (
+            !res.ok ||
+            !res.headers.get('content-type')?.startsWith(EventStreamContentType) ||
+            res.status !== 200
+          ) {
+            const responseTexts = []
+            let extraInfo = await res.clone().text()
+            try {
+              const resJson = await res.clone().json()
+              extraInfo = prettyObject(resJson)
+            } catch {}
+
+            if (res.status === 401) {
+              responseTexts.push('检测到无效 ApiKey，请在右上角检查 ApiKey 是否配置正确')
+            }
+
+            if (extraInfo) {
+              responseTexts.push(extraInfo)
+            }
+
+            const responseText = responseTexts.join('\n\n')
+            const mockResponse = {
+              role: 'assistant',
+              content: responseText
+            } as ChatCompletionRequestMessage
+
+            setMessages([...newMessages, mockResponse])
+            return
+          }
+        },
+        onmessage: function (event) {
+          if (event.data === '[DONE]') return
+          const eventMessage = JSON.parse(event.data)
+          const streamMessage: ChatCompletionRequestMessage = eventMessage.choices[0]?.message
+          // 每获取一个streamMessage(其content是完整消息)，都和 newMessages 组成新的数组，触发重渲染。
+          setMessages([...newMessages, streamMessage])
+        },
+        onclose() {
+          closeSSEConnect()
+        },
+        onerror(e) {
+          closeSSEConnect()
+          throw e
+        }
+      })
     } catch (error) {
       addToast({ title: '发起对话请求出错！', type: 'error' })
     }
   }
 
   return (
-    <ChatsContext.Provider value={{ connectStatus, messages, addMessage }}>
+    <ChatsContext.Provider value={{ connectStatus, closeSSEConnect, messages, addMessage }}>
       {children}
     </ChatsContext.Provider>
   )
