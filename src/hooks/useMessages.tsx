@@ -9,6 +9,7 @@ interface ContextProps {
   messages: ChatCompletionRequestMessage[]
   addMessage: (content: string) => Promise<void>
   connectStatus: number
+  controllerSSE: AbortController
   closeSSEConnect: () => void
 }
 
@@ -51,7 +52,7 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
   }, [curPdfUrl])
 
   const closeSSEConnect = () => {
-    controllerSSE.abort()
+    // controllerSSE?.abort()
     setConnectStatus(SSE_Status_Map.CLOSED)
     console.log('流连接已断开')
   }
@@ -84,48 +85,25 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
           setConnectStatus(SSE_Status_Map.OPEN)
 
           // 异常处理
-          const contentType = res.headers.get('content-type')
-          if (contentType?.startsWith('text/plain')) {
-            const responseText = await res.clone().text()
-            const mockResponse = {
-              role: 'assistant',
-              content: responseText
-            } as ChatCompletionRequestMessage
-
-            setMessages([...newMessages, mockResponse])
-            return
-          }
-
           if (
             !res.ok ||
             !res.headers.get('content-type')?.startsWith(EventStreamContentType) ||
             res.status !== 200
           ) {
-            const responseTexts = []
             let extraInfo = await res.clone().text()
             try {
               const resJson = await res.clone().json()
               extraInfo = prettyObject(resJson)
             } catch (error) {
-              console.log('error', error)
+              console.log('onopen - error', error)
             }
 
-            if (res.status === 401) {
-              responseTexts.push('检测到无效 ApiKey，请在右上角检查 ApiKey 是否配置正确')
-            }
-
+            let responseText = ''
             if (extraInfo) {
-              responseTexts.push(extraInfo)
+              responseText = extraInfo
             }
 
-            const responseText = responseTexts.join('\n\n')
-            const mockResponse = {
-              role: 'assistant',
-              content: responseText
-            } as ChatCompletionRequestMessage
-
-            setMessages([...newMessages, mockResponse])
-            return
+            setReplyText(responseText || '请求出错')
           }
         },
         onmessage: function (event) {
@@ -164,7 +142,7 @@ export function MessagesProvider({ curPdfUrl, children }: IMessagesProvider) {
 
   return (
     <ChatsContext.Provider
-      value={{ connectStatus, closeSSEConnect, replyText, messages, addMessage }}
+      value={{ connectStatus, controllerSSE, closeSSEConnect, replyText, messages, addMessage }}
     >
       {children}
     </ChatsContext.Provider>

@@ -4,12 +4,17 @@ import { useMessages, SSE_Status_Map } from 'hooks/useMessages'
 
 const MessageForm = () => {
   const [content, setContent] = useState('')
-  const { addMessage, connectStatus, closeSSEConnect } = useMessages()
+  const { addMessage, connectStatus, controllerSSE, closeSSEConnect } = useMessages()
 
   const handleSubmit = async (e?: any) => {
     e?.preventDefault()
     addMessage(content)
     setContent('')
+  }
+
+  const handleStopGenerate = () => {
+    controllerSSE.abort()
+    closeSSEConnect()
   }
 
   return (
@@ -64,7 +69,7 @@ const MessageForm = () => {
           <Button
             className="absolute left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%]"
             size="small"
-            onClick={closeSSEConnect}
+            onClick={handleStopGenerate}
           >
             停止生成
           </Button>

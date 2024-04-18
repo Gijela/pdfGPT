@@ -22,7 +22,7 @@ const MessagesList = () => {
           <div
             id={`message-${i}`}
             className={`flex mb-3 fade-up justify-start ${i === 1 ? 'max-w-md' : ''}`}
-            key={message.content}
+            key={message.content + String(i)}
           >
             <img
               src={isUser ? '/img/logo.png' : '/img/gpt.png'}

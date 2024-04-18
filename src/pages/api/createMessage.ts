@@ -36,9 +36,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return reader.read().then(processStream)
     })
   } catch (error) {
-    console.log('api createMessage catch error~~: ', error)
-    res.write(`data: [DONE]\n\n`)
-    res.end()
     res.status(500).json({ error: error })
   }
 }
