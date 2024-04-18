@@ -1,6 +1,4 @@
-/* eslint-disable react/no-unescaped-entities */
 import React from 'react'
-import { TwitterX } from './icons'
 import { WALL_OF_LOVE } from './wallOfLove'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -16,7 +14,7 @@ const WallOfLove = () => {
           </RoughNotation>
         </h2>
         <p className="text-large text-default-500 text-lg mt-4">
-          只展示最受欢迎的8条评价, 如果您的评论也想被展示在此且满足条件，请与我们联系~
+          展示最受欢迎的8条评价, 如果您的评论也想被展示在此且满足条件，请与我们联系~
         </p>
       </div>
       <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 overflow-hidden relative transition-all">
@@ -38,11 +36,11 @@ const WallOfLove = () => {
                   </div>
                 </div>
                 <Link
-                  href={`https://twitter.com/${testimonial.user.username}`}
+                  href={`https://chat2hub.com/`}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
                 >
-                  <TwitterX className="w-8 h-8" />
+                  <img src="/img/gpt_black.png" className="w-8 h-8" />
                 </Link>
               </div>
               <p className="dark:text-zinc-200 text-[14px]">{testimonial.content}</p>
